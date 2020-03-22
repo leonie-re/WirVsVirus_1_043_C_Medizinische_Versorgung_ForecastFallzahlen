@@ -4,7 +4,7 @@ author: "Leonie Rettig & Filip Gonschorek & Steffen Zeeb"
 output: html_document
 ---
 
-```{r setup, message=F, results=F}
+```{r setup, include=F, message=F, results=F}
 # Load and potentially install all the packages for this lab
 p_needed <- c("tidyverse", "dplyr", "ggplot2")
 packages <- rownames(installed.packages())
@@ -41,7 +41,17 @@ mytheme <-
 theme_set(mytheme)
 ```
 
-```{r Plot Landkreis Landsberg a. Lech., warning=F}
+```{r Base Plot}
+for ( i in 1:20){
+k <- Landkreis_liste[[overview$num[i]]]
+
+plot(1:dim(k)[1], k$Fallgesamt, type = "l", col = "blue", ylim = c(0,max(c(k$predicted_values,k$Fallgesamt))+5), ylab = paste("F?lle",names(Landkreis_liste)[i], sep = " "), xlab = "Tage seit Erstinfektion")
+lines(1:dim(k)[1], k$predicted_values, lty = 2 )
+png(filename = paste0(i,".png"),)
+}
+```
+
+```{r GGPlot, warning=F}
 #plot <- rep(NA,20)
 for ( i in 1:20){
 k <- Landkreis_liste[[overview$num[i]]]
@@ -71,9 +81,8 @@ theme(
 )
 #ggsave(file=paste0(i,".png"), device=png, width=800)
 #setwd("C:/Users/Leoni/Google Drive/WirvsVirus/WirVsVirus/GGPlots")
-setwd("C:/Users/Leoni/OneDrive - bwedu/Uni")
-#ggsave(filename = "1.png")
-png(filename = paste0(i,".png"),)
+name <- paste0(i,".png")
+png(filename =paste0("figures/ggplot/",name),)
 plot
 dev.off()
 }

@@ -3,17 +3,17 @@ title: "Data Preparation Federal Government Measures"
 author: "Leonie Rettig & Filip Gonschorek & Steffen Zeeb"
 output: html_document
 ---
-## Install/Load packages
-```{r Setup, results=F, message=F}
-# Load and potentially install all the packages for this lab
-p_needed <- c("tidyverse", "dplyr")
-packages <- rownames(installed.packages())
-p_to_install <- p_needed[!(p_needed %in% packages)]
-if (length(p_to_install) > 0) {
-  install.packages(p_to_install)
-}
-lapply(p_needed, require, character.only = TRUE)
+```{r Packages, include=F, message=F, results=F}
+## Load and potentially install all the packages for this lab
+#p_needed <- c("tidyverse", "tidyr", "dplyr", "matchingMarkets", "lubridate", "stringr")
+#packages <- rownames(installed.packages())
+#p_to_install <- p_needed[!(p_needed %in% packages)]
+#if (length(p_to_install) > 0) {
+#  install.packages(p_to_install)
+#}
+#lapply(p_needed, require, character.only = TRUE)
 ```
+
 ## Setup data frame
 ```{r Setup data frame}
   measures.state <- data.frame("Schleswig-Holstein", "2020-03-16", 
@@ -21,8 +21,8 @@ lapply(p_needed, require, character.only = TRUE)
   # Name vectors
     colnames(measures.state) <- c("Bundesland", "Startdatum", ">=1000",
                                   ">=100", ">=50", ">=10", ">=5",
-                                  "Schulschließung", "Geschäftsschließung",
-                                  "Reiserückkehrer", "Lockdown")
+                                  "Schulschliessung", "Geschaeftsschliessung",
+                                  "Reiserueckkehrer", "Lockdown")
 ```
 ## Operationalisierung der Maßnahmen
 Die Maßnahmen zur Eindämmung des Corona-Virus sind in- wie außerhalb von Deutschland relativ vielfältig. Wir gehen davon aus das es sich schlussendlich um ähnliche Effekte bei den meisten Maßnahmen handelt. Eine detaillierte Analyse einer Vielzahl an Maßnahmen verspricht daher wenig mehrwert. Deshalb haben wir beschlossen uns auf 11 Maßnahmen-Typen zu beschränken. 
@@ -91,8 +91,8 @@ Alle Werte, die den Variablen zugeordnet sind, wurden entweder über die offizie
   )
   # Baden-Württemberg
   measures.state <- measures.state %>% rbind(.,
-    c("Baden-Württemberg", "2020-03-18",	1, 1,	1, 1, 1, 1, 1, 1, 0),
-    c("Baden-Württemberg", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0)
+    c("Baden-Wuerttemberg", "2020-03-18",	1, 1,	1, 1, 1, 1, 1, 1, 0),
+    c("Baden-Wuerttemberg", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0)
   )
   # Bayern
   measures.state <- measures.state %>% rbind(.,
@@ -142,9 +142,9 @@ Alle Werte, die den Variablen zugeordnet sind, wurden entweder über die offizie
   )
   # Thüringen
   measures.state <- measures.state %>% rbind(.,
-    c("Thüringen", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
-    c("Thüringen", "2020-03-17", 1, 1, 1, 0, 0, 1, 0, 0, 0),
-    c("Thüringen", "2020-03-19", 1, 1, 1, 1, 0, 1, 1, 1, 0)
+    c("Thueringen", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Thueringen", "2020-03-17", 1, 1, 1, 0, 0, 1, 0, 0, 0),
+    c("Thueringen", "2020-03-19", 1, 1, 1, 1, 0, 1, 1, 1, 0)
   )
 
 #setwd("C:/Users/Leoni/Google Drive/WirvsVirus")

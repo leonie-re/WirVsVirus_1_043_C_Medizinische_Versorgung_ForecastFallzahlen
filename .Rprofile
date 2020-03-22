@@ -1,5 +1,7 @@
 .First <- function() {
   dir.create(paste0(getwd(), "/figures"), showWarnings = F)
+  dir.create(paste0(getwd(), "/figures/base"), showWarnings = F)
+  dir.create(paste0(getwd(), "/figures/ggplot"), showWarnings = F)
   dir.create(paste0(getwd(), "/processed-data"), showWarnings = F)
   dir.create(paste0(getwd(), "/raw-data"), showWarnings = F)
   dir.create(paste0(getwd(), "/scripts"), showWarnings = F)

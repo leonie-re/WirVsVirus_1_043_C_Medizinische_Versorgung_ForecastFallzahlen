@@ -1,5 +1,4 @@
-rm(list = ls())
-
+#rm(list = ls())
 ## Load and potentially install all the packages for this lab
 #p_needed <- c("tidyverse", "tidyr", "dplyr", "matchingMarkets", "lubridate", "stringr")
 #packages <- rownames(installed.packages())
@@ -20,8 +19,7 @@ dat$date <- strsplit(dat$Meldedatum, split = "T") %>% lapply(., function(z){
   z[1]
 }) %>% unlist(.)
 
-### format data in order to extract daily information
-
+##---- Format data in order to extract daily information ----
 dat_formated <- dat %>% split(., .$Landkreis) %>% lapply(., function(z){
   z[order(z$date, decreasing = FALSE),] %>% split(., .$date) %>% lapply(., function(x){
     AnzahlFallTag       <- sum(x$AnzahlFall)
@@ -33,7 +31,7 @@ dat_formated <- dat %>% split(., .$Landkreis) %>% lapply(., function(z){
   }) %>% do.call("rbind",.)
 }) %>% do.call("rbind",.)
 
-### add missing observations to the data assumption no new cases at missing dates (justified if there are no missing cases )
+##---- Add missing observations to the data assumption no new cases at missing dates (justified if there are no missing cases) ----
 dat_formated$date <- as.Date(dat_formated$date)
 dat_formated <- dat_formated %>% split(., .$Landkreis) %>% lapply(., function(z){
   z[order(z$date),]
@@ -55,7 +53,7 @@ dat_formated <- dat_formated %>% split(., .$Landkreis) %>% lapply(., function(z)
 }) %>% do.call("rbind", .)
 
 
-### add weather information
+##---- Add weather information -----
 
 weather_data                  <- read.csv2(file = "raw-data/Wetterdaten.csv", sep = ";", stringsAsFactors = FALSE )
 weather_data$date             <- as.character(weather_data$date)
@@ -71,7 +69,7 @@ weather_data$DMOT             <- as.numeric(weather_data$DMOT)
 weather_data$TempMax          <- as.numeric(weather_data$TempMax)
 weather_data$TempMin          <- as.numeric(weather_data$TempMin)
 
-### create lagged values of weather data
+##---- Create lagged values of weather data ----
 for ( z in c("Niederschlag","Sonnenstunden","DMOT","TempMax","TempMin")){
   for (i in 1:14){
     weather_data[[paste0(z,"_lag_",i)]] <- lag(x = weather_data[[z]], n = i)
@@ -80,10 +78,8 @@ for ( z in c("Niederschlag","Sonnenstunden","DMOT","TempMax","TempMin")){
 
 weather_data <- weather_data[-c(1:14),]
 
-
-
-dat_formated$Bundesland[dat_formated$Bundesland == "Baden-Württemberg"] <- "Baden-W?rttemberg"
-dat_formated$Bundesland[dat_formated$Bundesland == "Thüringen"] <- "Th?ringen"
+dat_formated$Bundesland[dat_formated$Bundesland == "Baden-Wuerttemberg"] <- "Baden-Wuerttemberg"
+dat_formated$Bundesland[dat_formated$Bundesland == "Thueringen"] <- "Thueringen"
 
 dat_formated <- left_join(dat_formated, weather_data, by = c("Bundesland", "date"))
 
@@ -91,13 +87,12 @@ load("raw-data/measures_state.RData")
 names(measures.state)[names(measures.state) == "Startdatum"] <- "date"
 
 measures.state$date <- as.Date(as.character(measures.state$date))
-variables_to_replace <- c("<=1000","<=100","<=50","<=10","<=5","Schulschließung","Geschäftsschließung", "Reiserückkehrer", "Lockdown")
+variables_to_replace <- c(">=1000",">=100",">=50",">=10","<=5","Schulschliessung","Geschaeftsschliessung", "Reiserueckkehrer", "Lockdown")
 for ( i in variables_to_replace ){
   measures.state[[i]] <- as.numeric(measures.state[[i]])
 }
 
 dat_formated <- left_join(dat_formated, measures.state, by = c("date","Bundesland")) 
-
 
 dat_formated <- dat_formated %>% split(., .$Landkreis) %>% lapply(., function(z){
   z <- z[order(z$date),]
@@ -113,8 +108,7 @@ dat_formated <- dat_formated %>% split(., .$Landkreis) %>% lapply(., function(z)
   return(z)
 }) %>% do.call("rbind",.)
 
-## estimate model
-# dat_formated <- dat_formated[!duplicated(dat_formated),]
+##---- Estimate model ----
 res <- dat_formated %>% split(.,.$Landkreis) %>% lapply(., function(z){
   if ( dim(z)[1] > 1){  
     z <- z[order(z$date),]
@@ -134,11 +128,11 @@ res <- dat_formated %>% split(.,.$Landkreis) %>% lapply(., function(z){
   }
 }) %>% do.call("rbind",.)# %>% mean(.)
 
-names(res)[names(res) == "<=1000"]  <- "thousand"
-names(res)[names(res) == "<=100"]   <- "hundred"
-names(res)[names(res) == "<=50"]    <- "fifty"
-names(res)[names(res) == "<=10"]    <- "ten"
-names(res)[names(res) == "<=5"]     <- "five"
+names(res)[names(res) == ">=1000"]  <- "thousand"
+names(res)[names(res) == ">=100"]   <- "hundred"
+names(res)[names(res) == ">=50"]    <- "fifty"
+names(res)[names(res) == ">=10"]    <- "ten"
+names(res)[names(res) == ">=5"]     <- "five"
 
 
 attach(res)
@@ -147,12 +141,14 @@ lmAIC <- MASS::stepAIC(object = reslm,scope=list(upper= ~ proportionwomen + prop
 res$estimated_growth_rate <- exp(lmAIC$fitted.values)
 summary(lmAIC)
 detach(res)
+
 endresult <- left_join(dat_formated,res, by = c("IdLandkreis", "date", "Niederschlag_lag_1", "Niederschlag_lag_2", "Niederschlag_lag_3", "Niederschlag_lag_4", "Niederschlag_lag_5", "Niederschlag_lag_6", "Niederschlag_lag_7", "Niederschlag_lag_8", "Niederschlag_lag_9", "Niederschlag_lag_10", "Niederschlag_lag_11", "Niederschlag_lag_12", "Niederschlag_lag_13", "Niederschlag_lag_14", "Sonnenstunden_lag_1", "Sonnenstunden_lag_2", "Sonnenstunden_lag_3", "Sonnenstunden_lag_4", "Sonnenstunden_lag_5", "Sonnenstunden_lag_6", "Sonnenstunden_lag_7", "Sonnenstunden_lag_8", "Sonnenstunden_lag_9", "Sonnenstunden_lag_10", "Sonnenstunden_lag_11", "Sonnenstunden_lag_12", "Sonnenstunden_lag_13", "Sonnenstunden_lag_14", "DMOT_lag_1", "DMOT_lag_2", "DMOT_lag_3", "DMOT_lag_4", "DMOT_lag_5", "DMOT_lag_6", "DMOT_lag_7", "DMOT_lag_8", "DMOT_lag_9", "DMOT_lag_10", "DMOT_lag_11", "DMOT_lag_12", "DMOT_lag_13", "DMOT_lag_14", "TempMax_lag_1", "TempMax_lag_2", "TempMax_lag_3", "TempMax_lag_4", "TempMax_lag_5", "TempMax_lag_6", "TempMax_lag_7", "TempMax_lag_8", "TempMax_lag_9", "TempMax_lag_10", "TempMax_lag_11", "TempMax_lag_12", "TempMax_lag_13", "TempMax_lag_14", "TempMin_lag_1", "TempMin_lag_2", "TempMin_lag_3", "TempMin_lag_4", "TempMin_lag_5", "TempMin_lag_6", "TempMin_lag_7", "TempMin_lag_8", "TempMin_lag_9", "TempMin_lag_10", "TempMin_lag_11", "TempMin_lag_12", "TempMin_lag_13", "TempMin_lag_14", "Schulschlie?ung", "Gesch?ftsschlie?ung", "Reiser?ckkehrer", "Lockdown"))
 
 endresult <- endresult %>% split(., .$Landkreis) %>% lapply(., function(z){
   z$Fallgesamt <- cumsum(z$AnzahlFallTag)
   return(z)
 }) %>% do.call("rbind", . )
+save(endresult, file="processed-data/endresult.RData")
 
 Landkreis_liste <- endresult[,c("Bundesland", "Landkreis", "date", "Fallgesamt", "AnzahlFallTag", "estimated_growth_rate")] %>% split(., .$Landkreis) %>% lapply(., function(z){
   z <- z[order(z$date),]
@@ -166,20 +162,14 @@ Landkreis_liste <- endresult[,c("Bundesland", "Landkreis", "date", "Fallgesamt",
   }
   return(z)
 })
+save(Landkreis_liste, file="processed-data/Landkreis_liste.RData")
 
+##---- Create Dataset with List of Landkreise with most values ----
 overview <- lapply(1:length(Landkreis_liste), function(z){
   data.frame(num = z, leng = dim(Landkreis_liste[[z]])[1])
 }) %>% do.call("rbind", .)
 overview <- overview[order(overview$leng, decreasing = TRUE),]
-#setwd(paste0(wd,"/plots/"))
 
-for ( i in 1:20){
-
-k <- Landkreis_liste[[overview$num[i]]]
-
-plot(1:dim(k)[1], k$Fallgesamt, type = "l", col = "blue", ylim = c(0,max(c(k$predicted_values,k$Fallgesamt))+5), ylab = paste("F?lle",names(Landkreis_liste)[i], sep = " "), xlab = "Tage seit Erstinfektion")
-lines(1:dim(k)[1], k$predicted_values, lty = 2 )
-png(filename = paste0(i,".png"),)
-}
+save(overview, file="processed-data/overview.RData")
 
 
