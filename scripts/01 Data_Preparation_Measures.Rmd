@@ -89,7 +89,7 @@ Alle Werte, die den Variablen zugeordnet sind, wurden entweder über die offizie
     c("Rheinland-Pfalz", "2020-03-13", 1, 1, 0, 0, 0, 1, 0, 0, 0),
     c("Rheinland-Pfalz", "2020-03-18", 1, 1, 0, 0, 0, 1, 1, 1, 0)
   )
-  # Baden-Württemberg
+  # Baden-Wuerttemberg
   measures.state <- measures.state %>% rbind(.,
     c("Baden-Wuerttemberg", "2020-03-18",	1, 1,	1, 1, 1, 1, 1, 1, 0),
     c("Baden-Wuerttemberg", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -140,15 +140,14 @@ Alle Werte, die den Variablen zugeordnet sind, wurden entweder über die offizie
     c("Sachsen-Anhalt", "2020-03-16", 1, 0, 0, 0, 0, 1, 0, 0, 0),
     c("Sachsen-Anhalt", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 0, 0)
   )
-  # Thüringen
+  # Thueringen
   measures.state <- measures.state %>% rbind(.,
     c("Thueringen", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
     c("Thueringen", "2020-03-17", 1, 1, 1, 0, 0, 1, 0, 0, 0),
     c("Thueringen", "2020-03-19", 1, 1, 1, 1, 0, 1, 1, 1, 0)
   )
 
-#setwd("C:/Users/Leoni/Google Drive/WirvsVirus")
-#save(measures.state, file = "measures_state.RData")
+save(measures.state, file = "../raw-data/measures_state.RData")
 ```
 
 

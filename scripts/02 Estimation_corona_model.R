@@ -1,4 +1,4 @@
-#rm(list = ls())
+rm(list = ls())
 ## Load and potentially install all the packages for this lab
 #p_needed <- c("tidyverse", "tidyr", "dplyr", "matchingMarkets", "lubridate", "stringr")
 #packages <- rownames(installed.packages())
@@ -9,7 +9,7 @@
 #lapply(p_needed, require, character.only = TRUE)
 
 ## Load datasets
-#wd <- "C:/Users/Leoni/Google Drive/WirvsVirus/WirVsVirus"
+#wd <- "C:/Users/Leoni/OneDrive - bwedu/GitHub/WirVsVirus_1_043_C_Medizinische_Versorgung_ForecastFallzahlen/raw-data"
 #setwd(dir = wd)
 
 #dat <- read.csv2(file = paste0(wd, "/RKI_COVID19.csv"), sep = ",", stringsAsFactors = FALSE)
@@ -54,7 +54,7 @@ dat_formated <- dat_formated %>% split(., .$Landkreis) %>% lapply(., function(z)
 
 
 ##---- Add weather information -----
-
+#weather_data                  <- read.csv2(file =paste0(wd,"/Wetterdaten.csv"), sep = ";", stringsAsFactors = FALSE )
 weather_data                  <- read.csv2(file = "raw-data/Wetterdaten.csv", sep = ";", stringsAsFactors = FALSE )
 weather_data$date             <- as.character(weather_data$date)
 date_year                     <- str_sub(weather_data$date,1,4)
@@ -77,17 +77,20 @@ for ( z in c("Niederschlag","Sonnenstunden","DMOT","TempMax","TempMin")){
 }
 
 weather_data <- weather_data[-c(1:14),]
-
-dat_formated$Bundesland[dat_formated$Bundesland == "Baden-Wuerttemberg"] <- "Baden-Wuerttemberg"
-dat_formated$Bundesland[dat_formated$Bundesland == "Thueringen"] <- "Thueringen"
+weather_data$Bundesland[weather_data$Bundesland == "Baden-Württemberg"] <- "Baden-Wuerttemberg"
+weather_data$Bundesland[weather_data$Bundesland == "Thüringen"] <- "Thueringen"
+dat_formated$Bundesland[dat_formated$Bundesland == "Baden-WÃ¼rttemberg"] <- "Baden-Wuerttemberg"
+dat_formated$Bundesland[dat_formated$Bundesland == "ThÃ¼ringen"] <- "Thueringen"
 
 dat_formated <- left_join(dat_formated, weather_data, by = c("Bundesland", "date"))
 
+##---- Add measures data ----
+#load(paste0(wd,"/measures_state.RData"))
 load("raw-data/measures_state.RData")
 names(measures.state)[names(measures.state) == "Startdatum"] <- "date"
 
 measures.state$date <- as.Date(as.character(measures.state$date))
-variables_to_replace <- c(">=1000",">=100",">=50",">=10","<=5","Schulschliessung","Geschaeftsschliessung", "Reiserueckkehrer", "Lockdown")
+variables_to_replace <- c(">=1000",">=100",">=50",">=10",">=5","Schulschliessung","Geschaeftsschliessung", "Reiserueckkehrer", "Lockdown")
 for ( i in variables_to_replace ){
   measures.state[[i]] <- as.numeric(measures.state[[i]])
 }
@@ -137,18 +140,22 @@ names(res)[names(res) == ">=5"]     <- "five"
 
 attach(res)
 reslm <- lm(formula = formula(res[,!names(res) %in% c("date", "IdLandkreis")]) )
-lmAIC <- MASS::stepAIC(object = reslm,scope=list(upper= ~ proportionwomen + proportion35 + proportion60 + Niederschlag_lag_1 + Niederschlag_lag_2 + Niederschlag_lag_3 + Niederschlag_lag_4 + Niederschlag_lag_5 + Niederschlag_lag_6 + Niederschlag_lag_7 + Niederschlag_lag_8 + Niederschlag_lag_9 + Niederschlag_lag_10 + Niederschlag_lag_11 + Niederschlag_lag_12 + Niederschlag_lag_13 + Niederschlag_lag_14 + Sonnenstunden_lag_1 + Sonnenstunden_lag_2 + Sonnenstunden_lag_3 + Sonnenstunden_lag_4 + Sonnenstunden_lag_5 + Sonnenstunden_lag_6 + Sonnenstunden_lag_7 + Sonnenstunden_lag_8 + Sonnenstunden_lag_9 + Sonnenstunden_lag_10 + Sonnenstunden_lag_11 + Sonnenstunden_lag_12 + Sonnenstunden_lag_13 + Sonnenstunden_lag_14 + DMOT_lag_1 + DMOT_lag_2 + DMOT_lag_3 + DMOT_lag_4 + DMOT_lag_5 + DMOT_lag_6 + DMOT_lag_7 + DMOT_lag_8 + DMOT_lag_9 + DMOT_lag_10 + DMOT_lag_11 + DMOT_lag_12 + DMOT_lag_13 + DMOT_lag_14 + TempMax_lag_1 + TempMax_lag_2 + TempMax_lag_3 + TempMax_lag_4 + TempMax_lag_5 + TempMax_lag_6 + TempMax_lag_7 + TempMax_lag_8 + TempMax_lag_9 + TempMax_lag_10 + TempMax_lag_11 + TempMax_lag_12 + TempMax_lag_13 + TempMax_lag_14 + TempMin_lag_1 + TempMin_lag_2 + TempMin_lag_3 + TempMin_lag_4 + TempMin_lag_5 + TempMin_lag_6 + TempMin_lag_7 + TempMin_lag_8 + TempMin_lag_9 + TempMin_lag_10 + TempMin_lag_11 + TempMin_lag_12 + TempMin_lag_13 + TempMin_lag_14 + thousand + hundred + fifty + ten + five + Schulschlie?ung + Gesch?ftsschlie?ung + Reiser?ckkehrer + Lockdown, lower=~1))
+lmAIC <- MASS::stepAIC(object = reslm,scope=list(upper= ~ proportionwomen + proportion35 + proportion60 + Niederschlag_lag_1 + Niederschlag_lag_2 + Niederschlag_lag_3 + Niederschlag_lag_4 + Niederschlag_lag_5 + Niederschlag_lag_6 + Niederschlag_lag_7 + Niederschlag_lag_8 + Niederschlag_lag_9 + Niederschlag_lag_10 + Niederschlag_lag_11 + Niederschlag_lag_12 + Niederschlag_lag_13 + Niederschlag_lag_14 + Sonnenstunden_lag_1 + Sonnenstunden_lag_2 + Sonnenstunden_lag_3 + Sonnenstunden_lag_4 + Sonnenstunden_lag_5 + Sonnenstunden_lag_6 + Sonnenstunden_lag_7 + Sonnenstunden_lag_8 + Sonnenstunden_lag_9 + Sonnenstunden_lag_10 + Sonnenstunden_lag_11 + Sonnenstunden_lag_12 + Sonnenstunden_lag_13 + Sonnenstunden_lag_14 + DMOT_lag_1 + DMOT_lag_2 + DMOT_lag_3 + DMOT_lag_4 + DMOT_lag_5 + DMOT_lag_6 + DMOT_lag_7 + DMOT_lag_8 + DMOT_lag_9 + DMOT_lag_10 + DMOT_lag_11 + DMOT_lag_12 + DMOT_lag_13 + DMOT_lag_14 + TempMax_lag_1 + TempMax_lag_2 + TempMax_lag_3 + TempMax_lag_4 + TempMax_lag_5 + TempMax_lag_6 + TempMax_lag_7 + TempMax_lag_8 + TempMax_lag_9 + TempMax_lag_10 + TempMax_lag_11 + TempMax_lag_12 + TempMax_lag_13 + TempMax_lag_14 + TempMin_lag_1 + TempMin_lag_2 + TempMin_lag_3 + TempMin_lag_4 + TempMin_lag_5 + TempMin_lag_6 + TempMin_lag_7 + TempMin_lag_8 + TempMin_lag_9 + TempMin_lag_10 + TempMin_lag_11 + TempMin_lag_12 + TempMin_lag_13 + TempMin_lag_14 + thousand + hundred + fifty + ten + five + Schulschliessung + Geschaeftsschliessung + Reiserueckkehrer + Lockdown, lower=~1))
 res$estimated_growth_rate <- exp(lmAIC$fitted.values)
 summary(lmAIC)
 detach(res)
 
-endresult <- left_join(dat_formated,res, by = c("IdLandkreis", "date", "Niederschlag_lag_1", "Niederschlag_lag_2", "Niederschlag_lag_3", "Niederschlag_lag_4", "Niederschlag_lag_5", "Niederschlag_lag_6", "Niederschlag_lag_7", "Niederschlag_lag_8", "Niederschlag_lag_9", "Niederschlag_lag_10", "Niederschlag_lag_11", "Niederschlag_lag_12", "Niederschlag_lag_13", "Niederschlag_lag_14", "Sonnenstunden_lag_1", "Sonnenstunden_lag_2", "Sonnenstunden_lag_3", "Sonnenstunden_lag_4", "Sonnenstunden_lag_5", "Sonnenstunden_lag_6", "Sonnenstunden_lag_7", "Sonnenstunden_lag_8", "Sonnenstunden_lag_9", "Sonnenstunden_lag_10", "Sonnenstunden_lag_11", "Sonnenstunden_lag_12", "Sonnenstunden_lag_13", "Sonnenstunden_lag_14", "DMOT_lag_1", "DMOT_lag_2", "DMOT_lag_3", "DMOT_lag_4", "DMOT_lag_5", "DMOT_lag_6", "DMOT_lag_7", "DMOT_lag_8", "DMOT_lag_9", "DMOT_lag_10", "DMOT_lag_11", "DMOT_lag_12", "DMOT_lag_13", "DMOT_lag_14", "TempMax_lag_1", "TempMax_lag_2", "TempMax_lag_3", "TempMax_lag_4", "TempMax_lag_5", "TempMax_lag_6", "TempMax_lag_7", "TempMax_lag_8", "TempMax_lag_9", "TempMax_lag_10", "TempMax_lag_11", "TempMax_lag_12", "TempMax_lag_13", "TempMax_lag_14", "TempMin_lag_1", "TempMin_lag_2", "TempMin_lag_3", "TempMin_lag_4", "TempMin_lag_5", "TempMin_lag_6", "TempMin_lag_7", "TempMin_lag_8", "TempMin_lag_9", "TempMin_lag_10", "TempMin_lag_11", "TempMin_lag_12", "TempMin_lag_13", "TempMin_lag_14", "Schulschlie?ung", "Gesch?ftsschlie?ung", "Reiser?ckkehrer", "Lockdown"))
+endresult <- left_join(dat_formated,res, by = c("IdLandkreis", "date", "Niederschlag_lag_1", "Niederschlag_lag_2", "Niederschlag_lag_3", "Niederschlag_lag_4", "Niederschlag_lag_5", "Niederschlag_lag_6", "Niederschlag_lag_7", "Niederschlag_lag_8", "Niederschlag_lag_9", "Niederschlag_lag_10", "Niederschlag_lag_11", "Niederschlag_lag_12", "Niederschlag_lag_13", "Niederschlag_lag_14", "Sonnenstunden_lag_1", "Sonnenstunden_lag_2", "Sonnenstunden_lag_3", "Sonnenstunden_lag_4", "Sonnenstunden_lag_5", "Sonnenstunden_lag_6", "Sonnenstunden_lag_7", "Sonnenstunden_lag_8", "Sonnenstunden_lag_9", "Sonnenstunden_lag_10", "Sonnenstunden_lag_11", "Sonnenstunden_lag_12", "Sonnenstunden_lag_13", "Sonnenstunden_lag_14", "DMOT_lag_1", "DMOT_lag_2", "DMOT_lag_3", "DMOT_lag_4", "DMOT_lag_5", "DMOT_lag_6", "DMOT_lag_7", "DMOT_lag_8", "DMOT_lag_9", "DMOT_lag_10", "DMOT_lag_11", "DMOT_lag_12", "DMOT_lag_13", "DMOT_lag_14", "TempMax_lag_1", "TempMax_lag_2", "TempMax_lag_3", "TempMax_lag_4", "TempMax_lag_5", "TempMax_lag_6", "TempMax_lag_7", "TempMax_lag_8", "TempMax_lag_9", "TempMax_lag_10", "TempMax_lag_11", "TempMax_lag_12", "TempMax_lag_13", "TempMax_lag_14", "TempMin_lag_1", "TempMin_lag_2", "TempMin_lag_3", "TempMin_lag_4", "TempMin_lag_5", "TempMin_lag_6", "TempMin_lag_7", "TempMin_lag_8", "TempMin_lag_9", "TempMin_lag_10", "TempMin_lag_11", "TempMin_lag_12", "TempMin_lag_13", "TempMin_lag_14", "Schulschliessung", "Geschaeftsschliessung", "Reiserueckkehrer", "Lockdown"))
 
 endresult <- endresult %>% split(., .$Landkreis) %>% lapply(., function(z){
   z$Fallgesamt <- cumsum(z$AnzahlFallTag)
   return(z)
 }) %>% do.call("rbind", . )
-save(endresult, file="processed-data/endresult.RData")
+
+#setwd("C:/Users/Leoni/OneDrive - bwedu/GitHub/WirVsVirus_1_043_C_Medizinische_Versorgung_ForecastFallzahlen/processed-data")
+#save(endresult, file="endresult.RData")
+#save(endresult, file="processed-data/endresult.RData")
+
 
 Landkreis_liste <- endresult[,c("Bundesland", "Landkreis", "date", "Fallgesamt", "AnzahlFallTag", "estimated_growth_rate")] %>% split(., .$Landkreis) %>% lapply(., function(z){
   z <- z[order(z$date),]
@@ -162,7 +169,8 @@ Landkreis_liste <- endresult[,c("Bundesland", "Landkreis", "date", "Fallgesamt",
   }
   return(z)
 })
-save(Landkreis_liste, file="processed-data/Landkreis_liste.RData")
+#save(Landkreis_liste, file="Landkreis_liste.RData")
+#save(Landkreis_liste, file="processed-data/Landkreis_liste.RData")
 
 ##---- Create Dataset with List of Landkreise with most values ----
 overview <- lapply(1:length(Landkreis_liste), function(z){
@@ -170,6 +178,6 @@ overview <- lapply(1:length(Landkreis_liste), function(z){
 }) %>% do.call("rbind", .)
 overview <- overview[order(overview$leng, decreasing = TRUE),]
 
-save(overview, file="processed-data/overview.RData")
-
+#save(overview, file="overview.RData")
+#save(overview, file="processed-data/overview.RData")
 
