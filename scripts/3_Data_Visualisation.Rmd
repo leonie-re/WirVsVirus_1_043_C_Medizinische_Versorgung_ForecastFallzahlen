@@ -1,0 +1,81 @@
+---
+title: "Data_Visualisation"
+author: "Leonie Rettig & Filip Gonschorek & Steffen Zeeb"
+output: html_document
+---
+
+```{r setup, message=F, results=F}
+# Load and potentially install all the packages for this lab
+p_needed <- c("tidyverse", "dplyr", "ggplot2")
+packages <- rownames(installed.packages())
+p_to_install <- p_needed[!(p_needed %in% packages)]
+if (length(p_to_install) > 0) {
+  install.packages(p_to_install)
+}
+lapply(p_needed, require, character.only = TRUE)
+```
+## Setup for Data Visualisation
+```{r Set default theme, results=F, message=F}
+mytheme <- 
+  theme_minimal() +
+  theme(axis.line = element_line(colour = "ivory4"),
+        axis.text.x = element_text(size = 12,
+                                   hjust = .5),
+        axis.ticks = element_line(colour = "ivory4"),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 12),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(size = 12),
+        panel.background = element_blank(),
+        panel.grid.major.y = element_line(colour = adjustcolor("ivory4", alpha.f = .35),
+                                          linetype = "dashed"),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position = "none",
+        plot.title = element_text(size = 12,
+                                  hjust = 0,
+                                  face = "bold")
+  )
+
+theme_set(mytheme)
+```
+
+```{r Plot Landkreis Landsberg a. Lech., warning=F}
+#plot <- rep(NA,20)
+for ( i in 1:20){
+k <- Landkreis_liste[[overview$num[i]]]
+x <- 1:dim(k)[1]
+y <- k$Fallgesamt
+
+plot <- ggplot(NULL,aes(x,y)) +
+  geom_line(aes(color = "Observed Values"), linetype=2) +
+    #scale_colour_manual(
+    #name = "",  values =c("not"="grey35", "mentioned"="grey35"),
+    #guide = guide_legend(override.aes = list(
+     # shape = 15))
+  #) +
+  ylab(paste("Fälle",names(Landkreis_liste)[overview$num[i]], sep = " ")) + 
+  xlab("Tage seit Erstinfektion") +
+  scale_y_continuous(
+    limits = c(0,max(c(k$predicted_values,k$Fallgesamt))+5),
+    #breaks = seq(0, max(c(k$predicted_values,k$Fallgesamt))+5, 5)
+  )+
+  geom_line(aes(1:dim(k)[1], k$predicted_values, color="Predicted Values"))+
+theme(
+    axis.title.x = element_text(size = 12),
+    legend.position = c(0.83, 0.85),
+    legend.key.size = unit(0.3, "cm"),
+    legend.text = element_text(size = 12),
+    legend.title = element_blank()
+)
+#ggsave(file=paste0(i,".png"), device=png, width=800)
+#setwd("C:/Users/Leoni/Google Drive/WirvsVirus/WirVsVirus/GGPlots")
+setwd("C:/Users/Leoni/OneDrive - bwedu/Uni")
+#ggsave(filename = "1.png")
+png(filename = paste0(i,".png"),)
+plot
+dev.off()
+}
+```
+

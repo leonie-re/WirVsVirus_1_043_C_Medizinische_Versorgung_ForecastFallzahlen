@@ -1,0 +1,154 @@
+---
+title: "Data Preparation Federal Government Measures"
+author: "Leonie Rettig & Filip Gonschorek & Steffen Zeeb"
+output: html_document
+---
+## Install/Load packages
+```{r Setup, results=F, message=F}
+# Load and potentially install all the packages for this lab
+p_needed <- c("tidyverse", "dplyr")
+packages <- rownames(installed.packages())
+p_to_install <- p_needed[!(p_needed %in% packages)]
+if (length(p_to_install) > 0) {
+  install.packages(p_to_install)
+}
+lapply(p_needed, require, character.only = TRUE)
+```
+## Setup data frame
+```{r Setup data frame}
+  measures.state <- data.frame("Schleswig-Holstein", "2020-03-16", 
+                             0, 0, 0, 0, 0, 1, 0, 0, 0, stringsAsFactors = F)
+  # Name vectors
+    colnames(measures.state) <- c("Bundesland", "Startdatum", ">=1000",
+                                  ">=100", ">=50", ">=10", ">=5",
+                                  "Schulschließung", "Geschäftsschließung",
+                                  "Reiserückkehrer", "Lockdown")
+```
+## Operationalisierung der Maßnahmen
+Die Maßnahmen zur Eindämmung des Corona-Virus sind in- wie außerhalb von Deutschland relativ vielfältig. Wir gehen davon aus das es sich schlussendlich um ähnliche Effekte bei den meisten Maßnahmen handelt. Eine detaillierte Analyse einer Vielzahl an Maßnahmen verspricht daher wenig mehrwert. Deshalb haben wir beschlossen uns auf 11 Maßnahmen-Typen zu beschränken. 
+
+**Bundesland**: Bezeichnung des Bundesland in welchem die Maßnahmen eingeführt wurden. 
+
+**Startdatum:** Datum, an welchem die Maßnahme(n) inkrafttraten. 
+
+**'>=1000', '>=100', '>=50', '>=10', '<=5':** Die 5 Dummy-Variablen bezeichnen das Verbot von Veranstaltungen und Menschenansammlungen ab der genannten Anzahl. Das heißt, hat beispielsweise **'>=100'** den Wert "1" ist es untersagt Veranstaltungen mit mehr als 99 Personen zu veranstalten. 
+
+**Schulschließung:** Dummy-Variable, die Schul- und KiTa-Schließungen zusammenfasst. 
+
+**Geschäftsschließung:** Dummy-Variable, die Gastronomie- und Einzelhandels-Schließungen zusammenfasst.
+
+**Reiserückkehrer:** Diese Dummy-Variable bezeichnet den Hinweis/das Verbot der Landesregierung, das Reiserückkehrer aus Risikogebieten sich für 14 Tagen gewissen Orten fernhalten sollen oder sich in Quarantäne begeben müssen.
+
+**Lockdown:** Ausgangsbeschränkungen innerhalb des Bundeslandes. 
+
+Alle Werte, die den Variablen zugeordnet sind, wurden entweder über die offiziellen Pressemittelungen oder die veröffentlichten Allgemeinverfügungen der Länder gesammelt. Aufgrund von beschränkten Möglichkeiten zur Automatisierung dieses Prozessen, wurden die Werte manuel zusammengetragen und zugeordnet. 
+
+## Fill data frame 
+```{r Fill data frame with information}
+  # Schleswig-Holstein
+  measures.state <- measures.state %>% rbind(.,
+    c("Schleswig-Holstein", "2020-03-17", 1, 1, 1, 0, 0, 1, 1, 0, 0),
+    c("Schleswig-Holstein", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 0, 0),
+    c("Schleswig-Holstein", "2020-03-19", 1, 1, 1, 0, 0, 1, 1, 0, 0),
+    c("Schleswig-Holstein", "2020-03-20", 1, 1, 1, 1, 1, 1, 1, 1, 0)
+  )
+  # Hamburg
+  measures.state <- measures.state %>% rbind(.,
+    c("Hamburg", "2020-03-13", 1, 0, 0, 0, 0, 1, 0, 0, 0),
+    c("Hamburg", "2020-03-15", 1, 1, 0, 0, 0, 1, 1, 0, 0),
+    c("Hamburg", "2020-03-16", 1, 1, 1, 0, 0, 1, 1, 1, 0)
+  )
+  # Niedersachsen
+  measures.state <- measures.state %>% rbind(.,
+    c("Niedersachsen", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Niedersachsen", "2020-03-16", 1, 0, 0, 0, 0, 1, 1, 0, 0),
+    c("Niedersachsen", "2020-03-17", 1, 1, 1, 1, 0, 1, 1, 0, 0)
+  )
+  # Bremen
+  measures.state <- measures.state %>% rbind(.,
+    c("Bremen", "2020-03-12", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Bremen", "2020-03-14", 1, 0, 0, 0, 0, 1, 0, 0, 0),
+    c("Bremen", "2020-03-17", 1, 0, 0, 0, 0, 1, 0, 1, 0),
+    c("Bremen", "2020-03-18", 1, 0, 0, 0, 0, 1, 1, 1, 0)
+  )
+  # Nordrhein-Westfalen
+  measures.state <- measures.state %>% rbind(.,
+    c("Nordrhein-Westfalen", "2020-03-10", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Nordrhein-Westfalen", "2020-03-14", 1, 1, 0, 0, 0, 0, 0, 0, 0),
+    c("Nordrhein-Westfalen", "2020-03-16", 1, 1, 1, 0, 0, 1, 1, 1, 0)
+  )
+  # Hessen
+  measures.state <- measures.state %>% rbind(.,
+    c("Hessen", "2020-03-13", 0, 0, 0, 0, 0, 1, 0, 1, 0),
+    c("Hessen", "2020-03-14", 1, 1, 0, 0, 0, 1, 0, 1, 0),
+    c("Hessen", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 1, 0),
+    c("Hessen", "2020-03-21", 1, 1, 1, 1, 1, 1, 1, 1, 0)
+  )
+  # Rheinland-Pfalz
+  measures.state <- measures.state %>% rbind(.,
+    c("Rheinland-Pfalz", "2020-03-13", 1, 1, 0, 0, 0, 1, 0, 0, 0),
+    c("Rheinland-Pfalz", "2020-03-18", 1, 1, 0, 0, 0, 1, 1, 1, 0)
+  )
+  # Baden-Württemberg
+  measures.state <- measures.state %>% rbind(.,
+    c("Baden-Württemberg", "2020-03-18",	1, 1,	1, 1, 1, 1, 1, 1, 0),
+    c("Baden-Württemberg", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0)
+  )
+  # Bayern
+  measures.state <- measures.state %>% rbind(.,
+    c("Bayern", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Bayern", "2020-03-7", 0, 0, 0, 0, 0, 0, 0, 1, 0),
+    c("Bayern", "2020-03-16", 1, 0, 0, 0, 0, 1, 0, 1, 0),
+    c("Bayern", "2020-03-17", 1, 1, 0, 0, 0, 1, 0, 1, 0),
+    c("Bayern", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 1, 0),
+    c("Bayern", "2020-03-21", 1, 1, 1, 0, 0, 1, 1, 1, 1)
+  )
+  # Saarland
+  measures.state <- measures.state %>% rbind(.,
+    c("Saarland", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Saarland", "2020-03-14", 1, 1, 1, 0, 0, 1, 0, 0, 0),
+    c("Saarland", "2020-03-18", 1, 1, 1, 1, 1, 1, 1, 0, 0),
+    c("Saarland", "2020-03-21", 1, 1, 1, 1, 1, 1, 1, 0, 1)
+  )
+  # Berlin
+  measures.state <- measures.state %>% rbind(.,
+    c("Berlin", "2020-03-12", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Berlin", "2020-03-16", 1, 1, 1, 0, 0, 1, 1, 0, 0),
+    c("Berlin", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 0, 0),
+    c("Berlin", "2020-03-22", 1, 1, 1, 1, 0, 1, 1, 0, 0)
+  )
+  #Brandenburg
+  measures.state <- measures.state %>% rbind(.,
+    c("Brandenburg", "2020-03-12", 1, 1, 0, 0, 0, 0, 0, 1, 0),
+    c("Brandenburg", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 1, 0)
+  )
+  # Mecklenburg-Vorpommern
+  measures.state <- measures.state %>% rbind(.,
+    c("Mecklenburg-Vorpommern", "2020-03-12", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Mecklenburg-Vorpommern", "2020-03-16", 1, 1, 1, 0, 0, 1, 0, 1, 0),
+    c("Mecklenburg-Vorpommern", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 1, 0)
+  )
+  # Sachsen
+  measures.state <- measures.state %>% rbind(.,
+    c("Sachsen", "2020-03-10", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Sachsen", "2020-03-18", 1, 0, 0, 0, 0, 1, 0, 0, 0),
+    c("Sachsen", "2020-03-21", 1, 1, 1, 0, 0, 1, 1, 0, 0)
+  )
+  # Sachsen-Anhalt
+  measures.state <- measures.state %>% rbind(.,
+    c("Sachsen-Anhalt", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Sachsen-Anhalt", "2020-03-16", 1, 0, 0, 0, 0, 1, 0, 0, 0),
+    c("Sachsen-Anhalt", "2020-03-18", 1, 1, 1, 0, 0, 1, 1, 0, 0)
+  )
+  # Thüringen
+  measures.state <- measures.state %>% rbind(.,
+    c("Thüringen", "2020-03-11", 1, 0, 0, 0, 0, 0, 0, 0, 0),
+    c("Thüringen", "2020-03-17", 1, 1, 1, 0, 0, 1, 0, 0, 0),
+    c("Thüringen", "2020-03-19", 1, 1, 1, 1, 0, 1, 1, 1, 0)
+  )
+
+#setwd("C:/Users/Leoni/Google Drive/WirvsVirus")
+#save(measures.state, file = "measures_state.RData")
+```
+
+
