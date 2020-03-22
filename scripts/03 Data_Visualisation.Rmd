@@ -81,6 +81,7 @@ theme(
 )
 #ggsave(file=paste0(i,".png"), device=png, width=800)
 #setwd("C:/Users/Leoni/Google Drive/WirvsVirus/WirVsVirus/GGPlots")
+
 name <- paste0(i,".png")
 png(filename =paste0("figures/ggplot/",name),)
 plot
